@@ -32,7 +32,7 @@ public static class TestGenerator
 #else
         await Parallel.ForEachAsync(controllers, async (controller, ct) =>
         {
-            await GenerateTestForType(controller, testGenerationOptions);
+            await GenerateTestsForType(controller, testGenerationOptions);
         });
 #endif
     }

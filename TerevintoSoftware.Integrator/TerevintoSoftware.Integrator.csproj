@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<IsPackable>true</IsPackable>
+		<PackAsTool>true</PackAsTool>
+	</PropertyGroup>
+	<PropertyGroup>
+		<Authors>Camilo Terevinto</Authors>
+		<Copyright>Camilo Terevinto</Copyright>
+		<Description>A package for creating c# tests from ASP.NET Core Controllers in a .NET assembly.
+Read the README in the GitHub project for information on usage.
+		</Description>
+		<RepositoryUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.Integrator</RepositoryUrl>
+		<PackageIconUrl>https://www.camiloterevinto.com/assets/_nuget.png</PackageIconUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageTags>nunit;unit tests</PackageTags>
+		<PackageProjectUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.Integrator</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReleaseNotes>[0.0.1]: Initial release.</PackageReleaseNotes>
+		<Version>0.0.1</Version>
+		<ToolCommandName>dotnet-integrator</ToolCommandName>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+		<PackageReference Include="Spectre.Console.Cli" Version="0.48.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

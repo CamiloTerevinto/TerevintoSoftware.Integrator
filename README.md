@@ -13,6 +13,39 @@ This currently supports only NUnit (v3) tests, and it was tested with fairly sim
 2. (optional) See the available options with `dotnet-integrator --help`
 3. Run the generator: `dotnet-integrator --assembly "path-to-assembly" --output "path-to-output" --base-namespace YourLibrary.Tests`
 
+Considering an endpoint like:
+
+```csharp
+[HttpGet("{id}/async-wrapped")]
+public async Task<ActionResult<WeatherForecast>> GetWrappedAsync(int id)
+{
+}
+```
+
+The tool would generate a test like:
+
+```csharp
+[Test]
+public async Task Test_Get_GetWrappedAsync()
+{
+    // Arrange
+    int id = default;
+    WeatherForecast expectedResult = default;
+    var httpClient = GetClient();
+
+    // Act
+    var requestUri = $"weather/{id}/async-wrapped";
+    var httpResult = await httpClient.GetAsync(requestUri);
+
+    // Assert
+    Assert.That(httpResult.IsSuccessStatusCode, Is.True);
+    var contentResult = await httpResult.Content.ReadFromJsonAsync<WeatherForecast>();
+    Assert.That(contentResult, Is.EqualTo(expectedResult));
+}
+```
+
+See more examples in the Samples folder.
+
 ## How to build
 
 * Install Visual Studio 2022 (.NET 8 required), if needed. 

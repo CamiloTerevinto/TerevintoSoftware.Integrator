@@ -7,8 +7,6 @@ public class FixtureModel
     public FixtureGenerationOptions Options { get; set; }
     public ControllerModel Controller { get; set; }
     public string ClassNamespace { get; set; }
-
-    public List<Type> Dependencies { get; set; }
     public List<string> RequiredUsings { get; set; }
 }
 

@@ -20,8 +20,9 @@ Read the README in the GitHub project for information on usage.
 		<PackageTags>nunit;unit tests</PackageTags>
 		<PackageProjectUrl>https://github.com/CamiloTerevinto/TerevintoSoftware.Integrator</PackageProjectUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageReleaseNotes>[0.0.1]: Initial release.</PackageReleaseNotes>
-		<Version>0.0.1</Version>
+		<PackageReleaseNotes>[0.0.2]: Improve URL handling, support generics, and fix some bugs.
+[0.0.1]: Initial release.</PackageReleaseNotes>
+		<Version>0.0.2</Version>
 		<ToolCommandName>dotnet-integrator</ToolCommandName>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
 	</PropertyGroup>

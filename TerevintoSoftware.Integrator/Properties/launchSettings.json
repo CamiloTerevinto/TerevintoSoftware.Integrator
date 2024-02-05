@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TerevintoSoftware.Integrator": {
+      "commandName": "Project",
+      "commandLineArgs": "generate ../../../../samples/SampleWebsite ../../../../samples/SampleWebsite.Tests/tests -n SampleWebsite.Tests"
+    }
+  }
+}

@@ -9,6 +9,10 @@ public class WeatherController : ControllerBase
     private readonly WeatherForecast _staticForecast = new(new DateOnly(2024, 1, 1), 50, "");
 
     [HttpGet] public IActionResult GetNull() => Ok();
+    
+    [HttpGet("ienumerable")] public ActionResult<IEnumerable<WeatherForecast>> GetIenumerable() => Ok(new[] { _staticForecast });
+    [HttpGet("array")] public ActionResult<WeatherForecast[]> GetArray() => Ok(new[] { _staticForecast });
+    [HttpGet("list")] public ActionResult<List<WeatherForecast>> GetList() => Ok(new[] { _staticForecast });
 
     [HttpGet("{id}")] public IActionResult GetEmpty(int id) => Ok();
 

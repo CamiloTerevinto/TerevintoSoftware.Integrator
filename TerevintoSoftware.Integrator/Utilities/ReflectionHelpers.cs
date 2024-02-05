@@ -17,33 +17,8 @@ internal static class ReflectionHelpers
         {
             Controller = controller,
             ClassNamespace = baseTestNamespace,
-            RequiredUsings = FindReferencedUsingsForType(controller.Type),
-            Dependencies = FindConstructorDependencies(controller.Type)
+            RequiredUsings = FindReferencedUsingsForType(controller.Type)
         };
-    }
-
-    internal static List<Type> FindConstructorDependencies(Type type)
-    {
-        if (type == null)
-        {
-            throw new ArgumentNullException(nameof(type));
-        }
-        else if (!type.IsClass)
-        {
-            throw new ArgumentException($"{nameof(type)} must be a class.", nameof(type));
-        }
-
-        var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
-
-        if (constructors.Length != 1)
-        {
-            return [];
-        }
-
-        return constructors.Single()
-            .GetParameters()
-            .Select(p => p.ParameterType)
-            .ToList();
     }
 
     internal static List<string> FindReferencedUsingsForType(Type type)
@@ -81,13 +56,13 @@ internal static class ReflectionHelpers
         var httpMethodAttribute = typeof(HttpMethodAttribute);
         var data = new List<ControllerModel>();
 
-        foreach (var controller in controllers)
+        foreach (var controllerType in controllers)
         {
-            var controllerName = controller.Name.Replace("Controller", "");
-            var controllerRoute = controller.GetCustomAttribute<RouteAttribute>()?.Template ??
-                controllerName.ToKebabCase();
+            var controllerName = controllerType.Name.Replace("Controller", "");
+            var controllerModel = new ControllerModel(controllerType, controllerName);
+            controllerModel.CleanRoute(controllerType.GetCustomAttribute<RouteAttribute>()?.Template!);
 
-            var actions = controller
+            controllerModel.Actions = controllerType
                     .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                     .Select(method =>
                     {
@@ -104,12 +79,12 @@ internal static class ReflectionHelpers
                             : (HttpMethod.Get, "");
 
                         return new ControllerActionModel(
-                            method.Name, GetParametersData(template ?? "", method.GetParameters()),
+                            method.Name, GetParametersData(controllerModel.Route, template ?? "", method.GetParameters()),
                             method.ReturnType.UnwrapReturnType(), httpMethod, template ?? "");
                     })
                 .ToArray();
 
-            data.Add(new ControllerModel(controllerName, controller, controllerRoute, actions));
+            data.Add(controllerModel);
         }
 
         return data;
@@ -119,6 +94,7 @@ internal static class ReflectionHelpers
     {
         var taskType = typeof(Task);
         var genericActionResultType = typeof(IConvertToActionResult);
+        var genericEnumerableType = typeof(IEnumerable<>);
 
         var nextType = returnType;
 
@@ -132,14 +108,19 @@ internal static class ReflectionHelpers
             nextType = nextType.GetGenericArguments()[0];
         }
 
+        if (nextType.IsGenericType && genericEnumerableType.IsAssignableFrom(nextType.GetGenericTypeDefinition()))
+        {
+            return typeof(List<>).MakeGenericType(nextType.GenericTypeArguments[0]);
+        }
+
         return nextType;
     }
 
-    internal static ActionParameterModel[] GetParametersData(string routeTemplate, ParameterInfo[] parameters)
+    internal static ActionParameterModel[] GetParametersData(string controllerRoute, string routeTemplate, ParameterInfo[] parameters)
     {
         return parameters
             .Select(x => new ActionParameterModel(x.Name!, x.ParameterType,
-                ParameterInRouteTemplate(routeTemplate, x) ? BindingSource.Path :
+                ParameterInRouteTemplate(controllerRoute, routeTemplate, x) ? BindingSource.Path :
                     x.GetCustomAttribute<FromRouteAttribute>()?.BindingSource
                     ?? x.GetCustomAttribute<FromQueryAttribute>()?.BindingSource
                     ?? x.GetCustomAttribute<FromBodyAttribute>()?.BindingSource
@@ -159,8 +140,11 @@ internal static class ReflectionHelpers
         return BindingSource.Body;
     }
 
-    private static bool ParameterInRouteTemplate(string routeTemplate, ParameterInfo parameter)
+    private static bool ParameterInRouteTemplate(string controllerRoute, string actionRoute, ParameterInfo parameter)
     {
-        return routeTemplate.Contains($"{{{parameter.Name!}}}");
+        var parameterName = "{" + parameter.Name;
+        var finalUrl = UrlTemplateHelpers.BuildTemplateFromRoutes(controllerRoute, actionRoute);
+
+        return finalUrl.Contains(parameterName + ":") || finalUrl.Contains(parameterName + "}");
     }
 }

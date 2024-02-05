@@ -37,19 +37,19 @@ internal class TestTemplate(FixtureModel fixtureModel, TemplateBuilder builder)
         const string actComment = "// Act";
         const string assertComment = "// Assert";
 
-        var urlTemplate = $"{_fixtureModel.Controller.Route}/{actionModel.RouteTemplate}";
+        var urlTemplate = UrlTemplateHelpers.BuildTemplateFromRoutes(_fixtureModel.Controller.Route, actionModel.RouteTemplate);
         var resultExpected = actionModel.ReturnType != typeof(IActionResult);
 
         _builder.AddIndented(arrangeComment);
 
         foreach (var param in actionModel.Parameters)
         {
-            _builder.AddFormatIndented(variableTemplate, FriendlyTypeName(param.Type), param.Name, "default");
+            _builder.AddFormatIndented(variableTemplate, param.Type.GetTypeName(), param.Name, "default");
         }
 
         if (resultExpected)
         {
-            _builder.AddFormatIndented(variableTemplate, FriendlyTypeName(actionModel.ReturnType), "expectedResult", "default");
+            _builder.AddFormatIndented(variableTemplate, actionModel.ReturnType.GetTypeName(), "expectedResult", "default");
         }
 
         _builder.AddFormatIndented(variableTemplate, "var", "httpClient", $"{_fixtureModel.Options.ObtainHttpClientMethodName}()");
@@ -67,7 +67,7 @@ internal class TestTemplate(FixtureModel fixtureModel, TemplateBuilder builder)
         if (resultExpected)
         {
             _builder.AddFormatIndented(variableTemplate, "var", "contentResult", 
-                $"await httpResult.Content.ReadFromJsonAsync<{actionModel.ReturnType}>()");
+                $"await httpResult.Content.ReadFromJsonAsync<{actionModel.ReturnType.GetTypeName()}>()");
             _builder.AddIndented("Assert.That(contentResult, Is.EqualTo(expectedResult));");
         }
     }
@@ -80,8 +80,16 @@ internal class TestTemplate(FixtureModel fixtureModel, TemplateBuilder builder)
         }
         else if (actionModel.HttpMethod == HttpMethod.Post)
         {
-            var inputParameter = actionModel.Parameters.Single(p => p.BindingSource == BindingSource.Body);
-            _builder.AddFormatIndented("var httpResult = await httpClient.PostAsJsonAsync(requestUri, {0});", inputParameter.Name);
+            var inputParameter = actionModel.Parameters.SingleOrDefault(p => p.BindingSource == BindingSource.Body);
+
+            if (inputParameter != null)
+            {
+                _builder.AddFormatIndented("var httpResult = await httpClient.PostAsJsonAsync(requestUri, {0});", inputParameter.Name);
+            }
+            else
+            {
+                _builder.AddIndented("var httpResult = await httpClient.PostAsync(requestUri, null);");
+            }
         }
         else if (actionModel.HttpMethod == HttpMethod.Put)
         {
@@ -92,15 +100,5 @@ internal class TestTemplate(FixtureModel fixtureModel, TemplateBuilder builder)
         {
             _builder.AddIndented("var httpResult = await httpClient.DeleteAsync(requestUri);");
         }
-    }
-
-    private static string FriendlyTypeName(Type type)
-    {
-        if (type == typeof(int))
-        {
-            return "int";
-        }
-
-        return type.Name;
     }
 }

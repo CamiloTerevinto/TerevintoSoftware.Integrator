@@ -1,15 +1,13 @@
 using NUnit.Framework;
-using SampleWebsite.Tests;
 using System;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace SampleWebsite.Tests.IntegrationTests;
+namespace SampleWebsite.Tests;
 
 [TestFixture]
 public class WeatherControllerIntegrationTests : WebApplicationTestBase
 {
-
     [Test]
     public async Task Test_Get_GetNull()
     {
@@ -17,11 +15,62 @@ public class WeatherControllerIntegrationTests : WebApplicationTestBase
         var httpClient = GetClient();
 
         // Act
-        var requestUri = $"weather/";
+        var requestUri = $"weather";
         var httpResult = await httpClient.GetAsync(requestUri);
 
         // Assert
         Assert.That(httpResult.IsSuccessStatusCode, Is.True);
+    }
+
+    [Test]
+    public async Task Test_Get_GetIenumerable()
+    {
+        // Arrange
+        List<WeatherForecast> expectedResult = default;
+        var httpClient = GetClient();
+
+        // Act
+        var requestUri = $"weather/ienumerable";
+        var httpResult = await httpClient.GetAsync(requestUri);
+
+        // Assert
+        Assert.That(httpResult.IsSuccessStatusCode, Is.True);
+        var contentResult = await httpResult.Content.ReadFromJsonAsync<List<WeatherForecast>>();
+        Assert.That(contentResult, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public async Task Test_Get_GetArray()
+    {
+        // Arrange
+        WeatherForecast[] expectedResult = default;
+        var httpClient = GetClient();
+
+        // Act
+        var requestUri = $"weather/array";
+        var httpResult = await httpClient.GetAsync(requestUri);
+
+        // Assert
+        Assert.That(httpResult.IsSuccessStatusCode, Is.True);
+        var contentResult = await httpResult.Content.ReadFromJsonAsync<WeatherForecast[]>();
+        Assert.That(contentResult, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public async Task Test_Get_GetList()
+    {
+        // Arrange
+        List<WeatherForecast> expectedResult = default;
+        var httpClient = GetClient();
+
+        // Act
+        var requestUri = $"weather/list";
+        var httpResult = await httpClient.GetAsync(requestUri);
+
+        // Assert
+        Assert.That(httpResult.IsSuccessStatusCode, Is.True);
+        var contentResult = await httpResult.Content.ReadFromJsonAsync<List<WeatherForecast>>();
+        Assert.That(contentResult, Is.EqualTo(expectedResult));
     }
 
     [Test]
@@ -120,7 +169,7 @@ public class WeatherControllerIntegrationTests : WebApplicationTestBase
         var httpClient = GetClient();
 
         // Act
-        var requestUri = $"weather/";
+        var requestUri = $"weather";
         var httpResult = await httpClient.PostAsJsonAsync(requestUri, forecast);
 
         // Assert

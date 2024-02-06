@@ -11,7 +11,9 @@ This currently supports only NUnit (v3) tests, and it was tested with fairly sim
 
 1. Install the tool: `dotnet tool install TerevintoSoftware.Integrator`
 2. (optional) See the available options with `dotnet-integrator --help`
-3. Run the generator: `dotnet-integrator --assembly "path-to-assembly" --output "path-to-output" --base-namespace YourLibrary.Tests`
+3. Run the generator: `dotnet-integrator "path/to/mvc/project/folder" "path/to/tests/project-or-folder" -n YourApp.Tests.Tests`
+
+Do note that the paths can be absolute or relative, and the tool uses the built (Release or Debug) assembly from the input project.
 
 Considering an endpoint like:
 
